@@ -526,13 +526,22 @@ class AuditReader
      *
      * @param int $limit
      * @param int $offset
+     * @param int $projectId
      * @return Revision[]
      */
-    public function findRevisionHistory($limit = 20, $offset = 0)
+    public function findRevisionHistory($limit = 20, $offset = 0, $projectId = null)
     {
+
+      $queryString = "SELECT * FROM " . $this->config->getRevisionTableName();
+
+      if ($projectId) {
+        $queryString .= " WHERE project_id = " . $projectId;
+      }
+      $queryString .= " ORDER BY id DESC";
         $query = $this->platform->modifyLimitQuery(
-            "SELECT * FROM " . $this->config->getRevisionTableName() . " ORDER BY id DESC", $limit, $offset
+          $queryString, $limit, $offset
         );
+
         $revisionsData = $this->em->getConnection()->fetchAll($query);
 
         $revisions = array();
@@ -545,7 +554,7 @@ class AuditReader
         }
         return $revisions;
     }
-
+  
     /**
      * @deprecated this function name is misspelled.
      * Suggest using findEntitiesChangedAtRevision instead.
