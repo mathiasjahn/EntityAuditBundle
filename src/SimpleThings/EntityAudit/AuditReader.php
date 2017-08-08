@@ -529,13 +529,12 @@ class AuditReader
      * @param int $projectId
      * @return Revision[]
      */
-    public function findRevisionHistory($limit = 20, $offset = 0, $projectId = null)
+    public function findRevisionHistory($limit = 20, $offset = 0, \DateTime $startTime = null, \DateTime $endTime = null)
     {
 
       $queryString = "SELECT * FROM " . $this->config->getRevisionTableName();
-
-      if ($projectId) {
-        $queryString .= " WHERE project_id = " . $projectId;
+      if ($startTime && $endTime) {
+        $queryString .= " WHERE timestamp BETWEEN '" . $startTime->format($this->platform->getDateTimeFormatString()) . "' AND '" . $endTime->format($this->platform->getDateTimeFormatString()) . "'";
       }
       $queryString .= " ORDER BY id DESC";
         $query = $this->platform->modifyLimitQuery(
@@ -554,7 +553,7 @@ class AuditReader
         }
         return $revisions;
     }
-  
+
     /**
      * @deprecated this function name is misspelled.
      * Suggest using findEntitiesChangedAtRevision instead.
